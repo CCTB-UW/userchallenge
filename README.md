@@ -1,4 +1,7 @@
-# UserChallengePlugin
-User defined Challenges plugin for DCCW CTFd platform.
+# General Instructions
 
-Requires [LuaUtils](https://github.com/CCTB-UW/LuaUtils) to function.
+init.py contains all admin config and custom user challenge urls
+under `api_calls` you can find the custom api implementation
+under `assets/js` you can find all required javascript files. 
+the main files are `adminChallenge`, `adminChallenges`, `config`, `main` and `userChallenge`
+
