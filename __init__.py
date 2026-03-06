@@ -107,9 +107,7 @@ def load(app):
 
     # add creation date and user to listing
     @admins_only
-    def challenges_listing(res):
-
-        
+    def challenges_listing(res):    
         q = request.args.get("q")
         field = request.args.get("field")
         filters = []
@@ -275,7 +273,7 @@ def load(app):
     def getReqs(challenge_id):
         challenge = Challenges.query.filter_by(id=challenge_id).first_or_404()
         return {"success": True, "data": challenge.requirements}
-
+    
     # Comments
     comments.load(app)
     # attempts
