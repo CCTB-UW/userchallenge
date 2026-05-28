@@ -20,11 +20,22 @@ from CTFd.plugins.userchallenge.api_calls import (
     tags,
     topics,
 )
-from CTFd.plugins.userchallenge.utils import *
+from CTFd.plugins.userchallenge.utils import (
+    UserChallenges,
+    getAllUserChallenges,
+    getCreationDate,
+    getLastChanged,
+    getUserForChallenge,
+    isReadOnly,
+    owned_by_user,
+    showLink,
+    userChallenge_allowed,
+)
 from CTFd.utils import config
+from CTFd.utils.config import get_config
 from CTFd.utils.decorators import admins_only, authed_only
 from CTFd.utils.helpers import get_errors, get_infos
-from CTFd.utils.logging import log
+from CTFd.utils.user import get_current_user
 
 userChallenge = Blueprint(
     "userchallenge", __name__, template_folder="templates", static_folder="staticAssets"
@@ -168,11 +179,6 @@ def load(app):
     @app.route("/userchallenge/challenges", methods=["GET", "POST"])
     @userChallenge_allowed
     def view_challenges():
-        # TODO: add custom html extension of admin/challenges/challenges
-        #      change methods to check for rights and only display challenges by user
-        #      add custom html to change challenge editing to be available to users
-        #
-        #      add other plugin to modify challenge creation?
 
         q = request.args.get("q")
         field = request.args.get("field")
@@ -196,7 +202,6 @@ def load(app):
     @owned_by_user
     @userChallenge_allowed
     def updateChallenge(challenge_id):
-        # TODO: update logic to work with plugin
         challenges = dict(
             Challenges.query.with_entities(Challenges.id, Challenges.name).all()
         )
@@ -222,11 +227,24 @@ def load(app):
         )
 
         if isReadOnly():
-            if type(update_j2) == str:
+            if isinstance(update_j2, str):
                 update_j2 = update_j2.replace(
                     '	<div>\n\t\t<button class="btn btn-success btn-outlined float-right" type="submit">\n\t\t\tUpdate\n\t\t</button>\n\t</div>',
                     "",
                 )
+                update_j2 = update_j2.replace(
+                    'input type="number" class="form-control chal-value" name="value"',
+                    'input type="number" class="form-control chal-value" name="value" id="challengeValue-form"'
+                )
+                update_j2 = update_j2.replace(
+                    '<input',
+                    '<input disabled="true" ',
+                )
+                update_j2 = update_j2.replace(
+                    '<select',
+                    '<select disabled="true" ',
+                )                
+            
 
         update_script = url_for(
             "views.static_html",
